@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.intrasoftintl.iot.service.*;
 
+import com.intrasoftintl.ACUnit.service.ACUnitService;
 
 @RestController
 @RequestMapping("/users")
@@ -20,11 +21,16 @@ public class UsersController {
 
 	private DeviceService deviceservice;
 
+	private ACUnitService acunitservice;
+	
+	private HomeService homeservice;
 
 	@Autowired
-	public UsersController(PersonService personservice, DeviceService deviceservice) {
+	public UsersController(PersonService personservice, DeviceService deviceservice, ACUnitService acunitservice,HomeService homeservice) {
 		this.personservice = personservice;
 		this.deviceservice = deviceservice;
+		this.acunitservice = acunitservice;
+		this.homeservice=homeservice;
 	}
 
 	// Get user with id {id}
@@ -32,7 +38,7 @@ public class UsersController {
 	@ResponseBody
 	public ResponseEntity<Object> getUser(@RequestParam int id) {
 		try {
-			return new ResponseEntity<Object>(personservice.findById(id), HttpStatus.OK);
+			return new ResponseEntity<Object>(homeservice.findRooms(personservice.findHome(id)), HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<Object>("User not found!", HttpStatus.NOT_FOUND);
@@ -94,16 +100,15 @@ public class UsersController {
 	@GetMapping("/rooms/device")
 	@ResponseBody
 	public ResponseEntity<Object> getUserDevice(@RequestParam int id, @RequestParam int did) {
-		if(personservice.findById(id).getDevices().contains(deviceservice.findById(did))) {
-			try {
-				return new ResponseEntity<Object>(deviceservice.findInterfaceById(did), HttpStatus.OK);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return new ResponseEntity<Object>("Device not found!", HttpStatus.NOT_FOUND);
-			}
-		}else {
-			return new ResponseEntity<Object>("Not allowed to see device", HttpStatus.FORBIDDEN);
+		try {
+			// return new ResponseEntity<Object>(personservice.findDevice(id, did),
+			// HttpStatus.OK);
+			return new ResponseEntity<Object>(acunitservice.findById(did), HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<Object>("Device not found!", HttpStatus.NOT_FOUND);
 		}
+
 	}
 
 }

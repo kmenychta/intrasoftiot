@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.intrasoftintl.iot.entity.Device;
+import com.intrasoftintl.iot.entity.DeviceType;
 import com.intrasoftintl.iot.entity.Home;
 import com.intrasoftintl.iot.entity.Person;
 import com.intrasoftintl.iot.entity.Room;
@@ -68,7 +69,7 @@ public class AdminsController {
 				return new ResponseEntity<Object>("User not found!", HttpStatus.NOT_FOUND);
 			}
 		} else {
-			return new ResponseEntity<Object>("Not allowed to see user!", HttpStatus.FORBIDDEN);
+			return new ResponseEntity<Object>("Not allowed to see user!", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -163,7 +164,7 @@ public class AdminsController {
 				return new ResponseEntity<Object>("Devices not found!", HttpStatus.NOT_FOUND);
 			}
 		} else {
-			return new ResponseEntity<Object>("Not allowed to see user!", HttpStatus.FORBIDDEN);
+			return new ResponseEntity<Object>("Not allowed to see user!", HttpStatus.UNAUTHORIZED);
 		}
 
 	}
@@ -180,7 +181,7 @@ public class AdminsController {
 				return new ResponseEntity<Object>("Rooms not found!", HttpStatus.NOT_FOUND);
 			}
 		} else {
-			return new ResponseEntity<Object>("Not allowed to see user!", HttpStatus.FORBIDDEN);
+			return new ResponseEntity<Object>("Not allowed to see user!", HttpStatus.UNAUTHORIZED);
 		}
 	}
 
@@ -190,18 +191,19 @@ public class AdminsController {
 	public ResponseEntity<Object> saveDeviceToUser(@RequestParam int id, @RequestParam int uid, @RequestParam int did) {
 		if (personservice.findUsersIfAdmin(id).contains(personservice.findById(uid))) {
 			try {
-				if (personservice.addDevice(uid, did)) {
+				if(personservice.addDevice(uid, did)) {
 					return new ResponseEntity<Object>("Saved device with id " + did + " to user with id " + uid,
+						HttpStatus.OK);
+				}else {
+					return new ResponseEntity<Object>("Device is already saved to user",
 							HttpStatus.OK);
-				} else {
-					return new ResponseEntity<Object>("Device is already saved to user", HttpStatus.OK);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				return new ResponseEntity<Object>("Couldn't add device!", HttpStatus.NOT_FOUND);
 			}
 		} else {
-			return new ResponseEntity<Object>("Not allowed to add device!", HttpStatus.FORBIDDEN);
+			return new ResponseEntity<Object>("Not allowed to add device!", HttpStatus.UNAUTHORIZED);
 		}
 
 	}
@@ -212,18 +214,18 @@ public class AdminsController {
 	public ResponseEntity<Object> saveRoomToUser(@RequestParam int id, @RequestParam int uid, @RequestParam int rid) {
 		if (personservice.findUsersIfAdmin(id).contains(personservice.findById(uid))) {
 			try {
-				if (personservice.addRoom(uid, rid)) {
+				if(personservice.addRoom(uid, rid)) {
 					return new ResponseEntity<Object>("Saved room with id " + rid + " to user with id " + uid,
-							HttpStatus.OK);
-				} else {
-					return new ResponseEntity<Object>("Room is already saved to user", HttpStatus.OK);
+						HttpStatus.OK);
+				}else {
+					return new ResponseEntity<Object>("Room is already saved to user",HttpStatus.OK);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				return new ResponseEntity<Object>("Couldn't add room!", HttpStatus.NOT_FOUND);
 			}
 		} else {
-			return new ResponseEntity<Object>("Not allowed to add room!", HttpStatus.FORBIDDEN);
+			return new ResponseEntity<Object>("Not allowed to add room!", HttpStatus.UNAUTHORIZED);
 		}
 
 	}
@@ -241,7 +243,7 @@ public class AdminsController {
 				return new ResponseEntity<Object>("Couldn't delete user!", HttpStatus.NOT_FOUND);
 			}
 		} else {
-			return new ResponseEntity<Object>("Not allowed to delete user!", HttpStatus.FORBIDDEN);
+			return new ResponseEntity<Object>("Not allowed to delete user!", HttpStatus.UNAUTHORIZED);
 		}
 	}
 
@@ -251,18 +253,18 @@ public class AdminsController {
 	public ResponseEntity<Object> DeleteUserDevice(@RequestParam int id, @RequestParam int uid, @RequestParam int did) {
 		if (personservice.findUsersIfAdmin(id).contains(personservice.findById(uid))) {
 			try {
-				if (personservice.removeDevice(uid, did)) {
+				if(personservice.removeDevice(uid, did)) {
 					return new ResponseEntity<Object>("Deleted device with id " + did + " from user with id " + uid,
-							HttpStatus.OK);
-				} else {
-					return new ResponseEntity<Object>("User can't interact with this device", HttpStatus.NOT_FOUND);
+						HttpStatus.OK);
+				}else {
+					return new ResponseEntity<Object>("User can't interact with this device",HttpStatus.NOT_FOUND);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				return new ResponseEntity<Object>("Couldn't remove device!", HttpStatus.NOT_FOUND);
 			}
 		} else {
-			return new ResponseEntity<Object>("Not allowed to remove device!", HttpStatus.FORBIDDEN);
+			return new ResponseEntity<Object>("Not allowed to remove device!", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -272,11 +274,11 @@ public class AdminsController {
 	public ResponseEntity<Object> DeleteUserRoom(@RequestParam int id, @RequestParam int uid, @RequestParam int rid) {
 		if (personservice.findUsersIfAdmin(id).contains(personservice.findById(uid))) {
 			try {
-				if (personservice.removeRoom(uid, rid)) {
+				if(personservice.removeRoom(uid, rid)) {
 					return new ResponseEntity<Object>("Deleted room with id " + rid + " from user with id " + uid,
-							HttpStatus.OK);
-				} else {
-					return new ResponseEntity<Object>("User can't see this room", HttpStatus.NOT_FOUND);
+						HttpStatus.OK);
+				}else {
+					return new ResponseEntity<Object>("User can't see this room",HttpStatus.NOT_FOUND);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -291,17 +293,12 @@ public class AdminsController {
 	@DeleteMapping("/devices")
 	@ResponseBody
 	public ResponseEntity<Object> DeleteDevice(@RequestParam int id, @RequestParam int did) {
-		Device d = deviceservice.findById(did);
-		if (personservice.findDevices(id).contains(d)) {
-			try {
-				deviceservice.deleteById(did);
-				return new ResponseEntity<Object>("Deleted device with id " + did, HttpStatus.OK);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return new ResponseEntity<Object>("Couldn't delete device", HttpStatus.NOT_FOUND);
-			}
-		} else {
-			return new ResponseEntity<Object>("Not allowed to delete device", HttpStatus.FORBIDDEN);
+		try {
+			deviceservice.deleteById(did);
+			return new ResponseEntity<Object>("Deleted device with id " + did, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<Object>("Couldn't delete device", HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -309,27 +306,22 @@ public class AdminsController {
 	@DeleteMapping("/rooms")
 	@ResponseBody
 	public ResponseEntity<Object> DeleteRoom(@RequestParam int id, @RequestParam int rid) {
-		Room r = roomservice.findById(rid);
-		if (personservice.findHomeRooms(id).contains(r)) {
-			try {
-				roomservice.deleteById(rid);
-				return new ResponseEntity<Object>("Deleted room with id " + rid, HttpStatus.OK);
-			} catch (Exception e) {
-				e.printStackTrace();
-				return new ResponseEntity<Object>("Couldn't delete room", HttpStatus.NOT_FOUND);
-			}
-		} else {
-			return new ResponseEntity<Object>("Not allowed to delete room", HttpStatus.FORBIDDEN);
+		try {
+			roomservice.deleteById(rid);
+			return new ResponseEntity<Object>("Deleted room with id " + rid, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<Object>("Couldn't delete room", HttpStatus.NOT_FOUND);
 		}
+
 	}
 
 	@GetMapping("/devices/move")
 	@ResponseBody
 	public ResponseEntity<Object> moveDevice(@RequestParam int id, @RequestParam int did, @RequestParam int rid) {
-		int hid = personservice.findHome(id);
-		Home h = homeservice.findById(hid);
-		if ((h.getRooms().contains(roomservice.findById(rid))
-				&& (!roomservice.findById(rid).getDevices().contains(deviceservice.findById(did))))) {
+		int hid=personservice.findHome(id);
+		Home h=homeservice.findById(hid);
+		if((h.getRooms().contains(roomservice.findById(rid))&&(!roomservice.findById(rid).getDevices().contains(deviceservice.findById(did))))) {
 			try {
 				deviceservice.moveDevice(did, rid);
 				return new ResponseEntity<Object>("Moved device", HttpStatus.OK);
@@ -337,8 +329,8 @@ public class AdminsController {
 				e.printStackTrace();
 				return new ResponseEntity<Object>("Couldn't move device", HttpStatus.NOT_FOUND);
 			}
-		} else {
-			return new ResponseEntity<Object>("Not allowed to move device", HttpStatus.FORBIDDEN);
+		}else {
+			return new ResponseEntity<Object>("Not allowed to move device",HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -355,7 +347,7 @@ public class AdminsController {
 			personservice.addRoom(id, r.getId());
 			return new ResponseEntity<Object>("Added room", HttpStatus.OK);
 		} else {
-			return new ResponseEntity<Object>("Couldn't add room", HttpStatus.NOT_FOUND);
+			return new ResponseEntity<Object>("Couldn't add room", HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 
 	}
@@ -370,10 +362,9 @@ public class AdminsController {
 		int hid = personservice.findHome(id);
 		if (d.isValid() && (r != null) && (homeservice.findById(hid).getRooms().contains(r))) {
 			deviceservice.save(d);
-			personservice.addDevice(id, d.getId());
 			return new ResponseEntity<Object>("Added device", HttpStatus.OK);
 		} else {
-			return new ResponseEntity<Object>("Couldn't add device", HttpStatus.NOT_FOUND);
+			return new ResponseEntity<Object>("Couldn't add device", HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 	}
 

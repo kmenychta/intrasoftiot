@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.intrasoftintl.ACUnit.domain.ACUnit;
 import com.intrasoftintl.ACUnit.service.ACUnitService;
 import com.intrasoftintl.iot.dao.DeviceDAO;
 import com.intrasoftintl.iot.dao.DeviceTypeDAO;
@@ -72,6 +74,21 @@ public class DeviceServiceimpl implements DeviceService {
 	@Override
 	public void save(Device device) {
 		deviceDAO.save(device);
+		switch (device.getDeviceType().getTypeid()) {
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			//ACUnit ac= new ACUnit();
+			//ac.setId(device.getId());
+			//acunitservice.save(ac);
+			break;
+		case 5:
+			break;
+		}
 		
 	}
 
