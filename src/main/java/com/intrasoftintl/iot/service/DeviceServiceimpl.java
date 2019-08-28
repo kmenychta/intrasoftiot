@@ -7,7 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.intrasoftintl.ACUnit.domain.ACUnit;
+import com.intrasoftintl.ACUnit.domain.FanSpeed;
+import com.intrasoftintl.ACUnit.domain.Mode;
 import com.intrasoftintl.ACUnit.service.ACUnitService;
+import com.intrasoftintl.Lock.domain.IsLocked;
+import com.intrasoftintl.Lock.domain.Lock;
+import com.intrasoftintl.Lock.service.LockService;
 import com.intrasoftintl.iot.dao.DeviceDAO;
 import com.intrasoftintl.iot.dao.DeviceTypeDAO;
 import com.intrasoftintl.iot.dao.PersonDAO;
@@ -28,15 +33,18 @@ public class DeviceServiceimpl implements DeviceService {
 	
 	private RoomDAO roomDAO;
 	
+	@Autowired
 	private ACUnitService acunitservice;
 	
+	//@Autowired
+	//private LockService lockservice;
+	
 	@Autowired
-	public DeviceServiceimpl(DeviceDAO deviceDAO,PersonDAO personDAO,DeviceTypeDAO deviceTypeDAO,RoomDAO roomDAO,ACUnitService acunitservice) {
+	public DeviceServiceimpl(DeviceDAO deviceDAO,PersonDAO personDAO,DeviceTypeDAO deviceTypeDAO,RoomDAO roomDAO) {
 		this.deviceDAO=deviceDAO;
 		this.personDAO=personDAO;
 		this.deviceTypeDAO=deviceTypeDAO;
 		this.roomDAO=roomDAO;
-		this.acunitservice=acunitservice;
 	}
 
 	@Override
@@ -61,6 +69,7 @@ public class DeviceServiceimpl implements DeviceService {
 		case 2:
 			break;
 		case 3:
+			//device.add(lockservice.findById(id));
 			break;
 		case 4:
 			device.add(acunitservice.findById(id));
@@ -74,17 +83,18 @@ public class DeviceServiceimpl implements DeviceService {
 	@Override
 	public void save(Device device) {
 		deviceDAO.save(device);
-		switch (device.getDeviceType().getTypeid()) {
+		int id=device.getId();
+		int typeid=device.getDeviceType().getTypeid();
+		switch (typeid) {
 		case 1:
 			break;
 		case 2:
 			break;
 		case 3:
+			//lockservice.save(new Lock(id,IsLocked.UNLOCKED,device));
 			break;
 		case 4:
-			//ACUnit ac= new ACUnit();
-			//ac.setId(device.getId());
-			//acunitservice.save(ac);
+			acunitservice.save(new ACUnit(id,25,Mode.COOL,FanSpeed.LOW,device));
 			break;
 		case 5:
 			break;

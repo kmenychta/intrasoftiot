@@ -41,7 +41,7 @@ public class Device {
 	@Column(name = "api_key")
 	protected String api_key;
 
-	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
 	@JoinTable(name = "user_devices", joinColumns = @JoinColumn(name = "device_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
 	@JsonIgnore
 	protected List<Person> users;
