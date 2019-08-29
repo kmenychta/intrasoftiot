@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.intrasoftintl.iot.service.*;
 
-import com.intrasoftintl.ACUnit.service.ACUnitService;
 
 @RestController
 @RequestMapping("/users")
@@ -20,16 +19,13 @@ public class UsersController {
 	private PersonService personservice;
 
 	private DeviceService deviceservice;
-
-	private ACUnitService acunitservice;
 	
 	private HomeService homeservice;
 
 	@Autowired
-	public UsersController(PersonService personservice, DeviceService deviceservice, ACUnitService acunitservice,HomeService homeservice) {
+	public UsersController(PersonService personservice, DeviceService deviceservice,HomeService homeservice) {
 		this.personservice = personservice;
 		this.deviceservice = deviceservice;
-		this.acunitservice = acunitservice;
 		this.homeservice=homeservice;
 	}
 
@@ -103,7 +99,7 @@ public class UsersController {
 		try {
 			// return new ResponseEntity<Object>(personservice.findDevice(id, did),
 			// HttpStatus.OK);
-			return new ResponseEntity<Object>(acunitservice.findById(did), HttpStatus.OK);
+			return new ResponseEntity<Object>(deviceservice.findInterfaceById(did), HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<Object>("Device not found!", HttpStatus.NOT_FOUND);

@@ -379,7 +379,6 @@ public class AdminsController {
 			return new ResponseEntity<Object>("Couldn't add device", HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 	}
-	/*---------------------------------------------TODO validator?----------------------------------------------------*/
 
 	// update user
 	@PutMapping("/users")

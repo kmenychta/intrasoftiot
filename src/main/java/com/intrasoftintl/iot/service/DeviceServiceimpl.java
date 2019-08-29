@@ -10,9 +10,14 @@ import com.intrasoftintl.ACUnit.domain.ACUnit;
 import com.intrasoftintl.ACUnit.domain.FanSpeed;
 import com.intrasoftintl.ACUnit.domain.Mode;
 import com.intrasoftintl.ACUnit.service.ACUnitService;
+import com.intrasoftintl.CoffeeMaker.domain.CoffeeMaker;
+import com.intrasoftintl.CoffeeMaker.domain.CoffeeMode;
+import com.intrasoftintl.CoffeeMaker.service.CoffeeMakerService;
 import com.intrasoftintl.Lock.domain.IsLocked;
 import com.intrasoftintl.Lock.domain.Lock;
 import com.intrasoftintl.Lock.service.LockService;
+import com.intrasoftintl.SmartFridge.domain.SmartFridge;
+import com.intrasoftintl.SmartFridge.service.SmartFridgeService;
 import com.intrasoftintl.iot.dao.DeviceDAO;
 import com.intrasoftintl.iot.dao.DeviceTypeDAO;
 import com.intrasoftintl.iot.dao.PersonDAO;
@@ -36,8 +41,14 @@ public class DeviceServiceimpl implements DeviceService {
 	@Autowired
 	private ACUnitService acunitservice;
 	
+	@Autowired
+	private LockService lockservice;
+	
+	@Autowired
+	private SmartFridgeService smartfridgeservice;
+	
 	//@Autowired
-	//private LockService lockservice;
+	//private CoffeeMakerService coffeemakerservice;
 	
 	@Autowired
 	public DeviceServiceimpl(DeviceDAO deviceDAO,PersonDAO personDAO,DeviceTypeDAO deviceTypeDAO,RoomDAO roomDAO) {
@@ -65,16 +76,16 @@ public class DeviceServiceimpl implements DeviceService {
 		device.add(d);
 		switch (d.getDeviceType().getTypeid()) {
 		case 1:
+			//device.add(coffeemakerservice.findById(id));
 			break;
 		case 2:
+			device.add(smartfridgeservice.findById(id));
 			break;
 		case 3:
-			//device.add(lockservice.findById(id));
+			device.add(lockservice.findById(id));
 			break;
 		case 4:
 			device.add(acunitservice.findById(id));
-			break;
-		case 5:
 			break;
 		}
 		return device;
@@ -87,16 +98,16 @@ public class DeviceServiceimpl implements DeviceService {
 		int typeid=device.getDeviceType().getTypeid();
 		switch (typeid) {
 		case 1:
+			//coffeemakerservice.save(new CoffeeMaker(id,80,CoffeeMode.COFFEE,device));
 			break;
 		case 2:
+			smartfridgeservice.save(new SmartFridge(id,2,-10,device));
 			break;
 		case 3:
-			//lockservice.save(new Lock(id,IsLocked.UNLOCKED,device));
+			lockservice.save(new Lock(id,IsLocked.UNLOCKED,device));
 			break;
 		case 4:
 			acunitservice.save(new ACUnit(id,25,Mode.COOL,FanSpeed.LOW,device));
-			break;
-		case 5:
 			break;
 		}
 		
